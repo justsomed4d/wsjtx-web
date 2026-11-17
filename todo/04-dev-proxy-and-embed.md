@@ -1,6 +1,6 @@
 # 04 — Dev proxy and embed story
 
-Status: `todo`  
+Status: `done`  
 Priority: P1
 
 ## Goal
@@ -27,9 +27,9 @@ One clear local-dev path and one clear production path — no conflicting README
 
 ## Acceptance
 
-- [ ] From Vite origin, WebSocket connects without hard-coding host hacks
-- [ ] Fresh clone: `go run` works with tracked placeholder
-- [ ] Prod build still one binary with real UI assets
+- [x] From Vite origin, WebSocket connects without hard-coding host hacks
+- [x] Fresh clone: `go run` works with tracked placeholder
+- [x] Prod build still one binary with real UI assets
 
 ## Key files
 

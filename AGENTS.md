@@ -17,24 +17,33 @@ Fork of `dbehnke/wsjtx-web`. Push to `origin` (`justsomed4d/wsjtx-web`). Upstrea
 
 ## How to run (agent checklist)
 
-```bash
-# Backend (needs dist/ for embed — placeholder already in repo)
-go run main.go
+**Dev (two terminals)** — Vite proxies `/ws` → Go `:8080`:
 
+```bash
+# Terminal 1 — backend (placeholder dist/index.html already tracked for go:embed)
+go run main.go
 # If UDP :2237 is taken (often GridTracker):
-go run main.go -udp :2238 -http :8080
+# go run main.go -udp :2238 -http :8080
 
 # Optional: enable malgo capture for waterfall (default is off)
 go run main.go -audio
 
 # Frontend dev server
 cd wsjtx-web-ui && npm install && npm run dev
+# or from repo root: make dev
 ```
 
-- Backend HTTP: `http://localhost:8080`
-- Vite UI: `http://localhost:5173`
+- Vite UI: `http://localhost:5173` (use this in local dev)
+- Backend HTTP: `http://localhost:8080` (placeholder or prod assets)
 - WSJT-X must send UDP to whatever `-udp` address is in use; enable **Accept UDP requests** for reply/halt.
 - Waterfall needs `-audio`; without it, `getAudioDevices` / `setAudioDevice` return an empty list / no-op.
+
+**Prod** — one binary with embedded UI:
+
+```bash
+cd wsjtx-web-ui && npm run build && cd .. && go build
+# or: make all
+```
 
 See README **Using with GridTracker** for coexistence.
 

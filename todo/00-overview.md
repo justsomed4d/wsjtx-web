@@ -4,6 +4,10 @@ Work top to bottom. Skip only if blocked and note why.
 
 ## Refactors (foundation)
 
+- [ ] `01-split-go-packages.md` — Split `main.go` into packages
+- [ ] `02-optional-audio.md` — Gate audio behind a flag; default off
+- [x] `03-purge-vue-scaffold.md` — Remove Vue CLI/scaffold leftovers
+- [x] `04-dev-proxy-and-embed.md` — Clean local-dev vs production embed story
 - [x] `01-split-go-packages.md` — Split `main.go` into packages
 - [x] `02-optional-audio.md` — Gate audio behind a flag; default off
 - [ ] `03-purge-vue-scaffold.md` — Remove Vue CLI/scaffold leftovers
