@@ -1,6 +1,6 @@
 # 06 — WebSocket hub hardening
 
-Status: `todo`  
+Status: `done`  
 Priority: P1  
 Depends on: `01-split-go-packages.md` (ideal)
 
@@ -14,7 +14,7 @@ Current hub can block on `WriteMessage`; UI reconnects every 1s forever; `CheckO
 
 ## Steps
 
-1. Delete the useless sleep goroutine in `main`.
+1. Delete the useless sleep goroutine in `main`. *(already gone after package split)*
 2. Per-client write timeout; drop client on failure (already partially there).
 3. Non-blocking broadcast or per-client buffer with drop-oldest.
 4. Server ping/pong; client backoff reconnect (cap + jitter).
@@ -22,10 +22,10 @@ Current hub can block on `WriteMessage`; UI reconnects every 1s forever; `CheckO
 
 ## Acceptance
 
-- [ ] No empty background sleep loop
-- [ ] Slow client cannot stall all broadcasts
-- [ ] Reconnect uses backoff
-- [ ] Origin policy is configurable
+- [x] No empty background sleep loop
+- [x] Slow client cannot stall all broadcasts
+- [x] Reconnect uses backoff
+- [x] Origin policy is configurable
 
 ## Key files
 

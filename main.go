@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"log"
 	"net"
+	"os"
 
 	"wsjtx-web/internal/audio"
 	"wsjtx-web/internal/hub"
@@ -18,10 +19,17 @@ import (
 //go:embed dist
 var distFS embed.FS
 
+const defaultOrigins = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080"
+
 func main() {
 	udpAddr := flag.String("udp", ":2237", "UDP address to receive WSJT-X traffic")
 	httpAddr := flag.String("http", ":8080", "HTTP/WebSocket listen address")
 	enableAudio := flag.Bool("audio", false, "Enable audio capture for waterfall (malgo/CGO)")
+	originsDefault := defaultOrigins
+	if v := os.Getenv("WSJTX_WEB_ORIGINS"); v != "" {
+		originsDefault = v
+	}
+	origins := flag.String("origins", originsDefault, "Comma-separated allowed WebSocket Origin values; use * to allow all (env: WSJTX_WEB_ORIGINS)")
 	flag.Parse()
 
 	addr, err := net.ResolveUDPAddr("udp", *udpAddr)
@@ -67,6 +75,7 @@ func main() {
 			UDPConn:  conn,
 			Addrs:    addrs,
 			Audio:    audioMgr,
+			Origins:  server.ParseOrigins(*origins),
 		}); err != nil {
 			log.Fatal(err)
 		}

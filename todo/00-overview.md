@@ -9,7 +9,7 @@ Work top to bottom. Skip only if blocked and note why.
 - [x] `03-purge-vue-scaffold.md` — Remove Vue CLI/scaffold leftovers
 - [x] `04-dev-proxy-and-embed.md` — Clean local-dev vs production embed story
 - [x] `05-shared-protocol-types.md` — Typed WS message contract
-- [ ] `06-websocket-hardening.md` — Hub reliability and safety
+- [x] `06-websocket-hardening.md` — Hub reliability and safety
 - [ ] `07-tests-and-ci.md` — Protocol tests + GitHub Actions
 
 ## Features

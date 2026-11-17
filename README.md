@@ -96,11 +96,24 @@ go run main.go
 
 Defaults: WSJT-X UDP on `:2237`, HTTP on `http://localhost:8080`.
 
-    Audio capture for the waterfall is **off by default** (avoids malgo/PulseAudio noise). Enable it when you need the waterfall:
+Audio capture for the waterfall is **off by default** (avoids malgo/PulseAudio noise). Enable it when you need the waterfall:
 
-    ```bash
-    go run main.go -audio
-    ```
+```bash
+go run main.go -audio
+```
+
+WebSocket Origin checks default to localhost Vite/Go URLs:
+
+```text
+http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080
+```
+
+Override with `-origins` or `WSJTX_WEB_ORIGINS` (comma-separated). Use `*` to allow any Origin (handy on LAN):
+
+```bash
+go run main.go -origins '*'
+# or: go run main.go -origins 'http://192.168.1.148:8080,http://192.168.1.148:5173'
+```
 
 2. **Start the Frontend** (for development):
 
@@ -113,7 +126,7 @@ npm run dev
 
 Open the UI at `http://localhost:5173`. WebSocket traffic to `/ws` is proxied to Go — no host hard-coding needed.
 
-From another device on the LAN, use this machine’s IP (Vite listens on all interfaces), e.g. `http://192.168.1.148:5173`. The Go backend can stay on `:8080`; Vite still proxies `/ws` locally.
+From another device on the LAN, use this machine’s IP (Vite listens on all interfaces), e.g. `http://192.168.1.148:5173`. Pass matching `-origins` (or `*`) on the Go process so the WebSocket upgrade is allowed.
 
 ### Building for Production
 
