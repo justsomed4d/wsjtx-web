@@ -23,7 +23,7 @@ clean:
 # Two-terminal local dev: run `make dev` in one terminal after starting Go,
 # or use the recipe documented in README / AGENTS.md.
 dev:
-	@echo "Starting Vite on :5173 (proxies /ws → :8080)..."
+	@echo "Starting Vite on 0.0.0.0:5173 (proxies /ws → :8080; LAN: http://<ip>:5173)..."
 	@echo "Ensure Go is running: go run main.go   (or -udp :2238 if GridTracker owns :2237)"
 	cd wsjtx-web-ui && npm run dev
 

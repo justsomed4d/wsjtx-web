@@ -34,8 +34,8 @@ cd wsjtx-web-ui && npm install && npm run dev
 # or from repo root: make dev
 ```
 
-- Vite UI: `http://localhost:5173` (use this in local dev)
-- Backend HTTP: `http://localhost:8080` (placeholder or prod assets)
+- Vite UI: `http://localhost:5173` (or `http://<lan-ip>:5173` — `server.host: true`)
+- Backend HTTP: `http://localhost:8080` (placeholder or prod assets; also on LAN via `:8080`)
 - WSJT-X must send UDP to whatever `-udp` address is in use; enable **Accept UDP requests** for reply/halt.
 - Waterfall needs `-audio`; without it, `getAudioDevices` / `setAudioDevice` return an empty list / no-op.
 

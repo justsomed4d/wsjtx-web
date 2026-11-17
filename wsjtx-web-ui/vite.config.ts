@@ -22,6 +22,8 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    // Listen on all interfaces so phones/other LAN hosts can use http://<lan-ip>:5173
+    host: true,
     proxy: {
       '/ws': {
         target: 'http://127.0.0.1:8080',

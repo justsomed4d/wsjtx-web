@@ -113,6 +113,8 @@ npm run dev
 
 Open the UI at `http://localhost:5173`. WebSocket traffic to `/ws` is proxied to Go — no host hard-coding needed.
 
+From another device on the LAN, use this machine’s IP (Vite listens on all interfaces), e.g. `http://192.168.1.148:5173`. The Go backend can stay on `:8080`; Vite still proxies `/ws` locally.
+
 ### Building for Production
 
 One binary: Vite writes the UI into `dist/`, then Go embeds it.
