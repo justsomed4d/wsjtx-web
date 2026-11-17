@@ -96,7 +96,13 @@ go run main.go
 
 Defaults: WSJT-X UDP on `:2237`, HTTP on `http://localhost:8080`.
 
-**Terminal 2 — Vite frontend**:
+    Audio capture for the waterfall is **off by default** (avoids malgo/PulseAudio noise). Enable it when you need the waterfall:
+
+    ```bash
+    go run main.go -audio
+    ```
+
+2. **Start the Frontend** (for development):
 
 ```bash
 cd wsjtx-web-ui

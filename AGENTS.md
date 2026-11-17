@@ -25,7 +25,10 @@ go run main.go
 # If UDP :2237 is taken (often GridTracker):
 # go run main.go -udp :2238 -http :8080
 
-# Terminal 2 — frontend
+# Optional: enable malgo capture for waterfall (default is off)
+go run main.go -audio
+
+# Frontend dev server
 cd wsjtx-web-ui && npm install && npm run dev
 # or from repo root: make dev
 ```
@@ -33,6 +36,7 @@ cd wsjtx-web-ui && npm install && npm run dev
 - Vite UI: `http://localhost:5173` (use this in local dev)
 - Backend HTTP: `http://localhost:8080` (placeholder or prod assets)
 - WSJT-X must send UDP to whatever `-udp` address is in use; enable **Accept UDP requests** for reply/halt.
+- Waterfall needs `-audio`; without it, `getAudioDevices` / `setAudioDevice` return an empty list / no-op.
 
 **Prod** — one binary with embedded UI:
 
