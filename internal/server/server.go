@@ -16,12 +16,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins for now
-	},
-}
-
 // AddrStore remembers the last WSJT-X UDP peer for outbound commands.
 type AddrStore struct {
 	mu   sync.Mutex
@@ -50,26 +44,37 @@ type Config struct {
 	UDPConn  *net.UDPConn
 	Addrs    *AddrStore
 	Audio    *audio.Manager // nil when audio is disabled
+	Origins  []string       // allowed WebSocket Origin values; "*" allows all
 }
 
 // Start registers routes and begins ListenAndServe (blocking).
 func Start(cfg Config) error {
-	http.Handle("/", http.FileServer(http.FS(cfg.StaticFS)))
-	http.HandleFunc("/ws", cfg.handleWS)
-	log.Printf("Starting HTTP server on %s...", cfg.Addr)
-	return http.ListenAndServe(cfg.Addr, nil)
+	upgrader := websocket.Upgrader{
+		CheckOrigin: CheckOriginFunc(cfg.Origins),
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.FS(cfg.StaticFS)))
+	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		cfg.handleWS(upgrader, w, r)
+	})
+	log.Printf("Starting HTTP server on %s (WS origins: %v)...", cfg.Addr, cfg.Origins)
+	return http.ListenAndServe(cfg.Addr, mux)
 }
 
-func (cfg Config) handleWS(w http.ResponseWriter, r *http.Request) {
+func (cfg Config) handleWS(upgrader websocket.Upgrader, w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Upgrade error:", err)
 		return
 	}
-	defer ws.Close()
 
-	cfg.Hub.Register(ws)
-	defer cfg.Hub.Unregister(ws)
+	client := hub.NewClient(cfg.Hub, ws)
+	cfg.Hub.Register(client)
+	go client.WritePump()
+	defer cfg.Hub.Unregister(client)
+
+	client.PrepareRead()
 
 	for {
 		_, message, err := ws.ReadMessage()
