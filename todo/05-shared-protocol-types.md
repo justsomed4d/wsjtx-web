@@ -1,6 +1,6 @@
 # 05 — Shared / typed WS protocol
 
-Status: `todo`  
+Status: `done`  
 Priority: P1
 
 ## Goal
@@ -27,9 +27,9 @@ Prefer (1) unless codegen is already justified.
 
 ## Acceptance
 
-- [ ] No `msg.type === "2"` in UI (use named types)
-- [ ] Go and TS agree on field names for `reply` / `halt`
-- [ ] Short protocol doc exists
+- [x] No `msg.type === "2"` in UI (use named types)
+- [x] Go and TS agree on field names for `reply` / `halt`
+- [x] Short protocol doc exists
 
 ## Key files
 

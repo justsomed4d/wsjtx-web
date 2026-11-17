@@ -4,15 +4,11 @@ Work top to bottom. Skip only if blocked and note why.
 
 ## Refactors (foundation)
 
-- [ ] `01-split-go-packages.md` — Split `main.go` into packages
-- [ ] `02-optional-audio.md` — Gate audio behind a flag; default off
-- [x] `03-purge-vue-scaffold.md` — Remove Vue CLI/scaffold leftovers
-- [x] `04-dev-proxy-and-embed.md` — Clean local-dev vs production embed story
 - [x] `01-split-go-packages.md` — Split `main.go` into packages
 - [x] `02-optional-audio.md` — Gate audio behind a flag; default off
-- [ ] `03-purge-vue-scaffold.md` — Remove Vue CLI/scaffold leftovers
-- [ ] `04-dev-proxy-and-embed.md` — Clean local-dev vs production embed story
-- [ ] `05-shared-protocol-types.md` — Typed WS message contract
+- [x] `03-purge-vue-scaffold.md` — Remove Vue CLI/scaffold leftovers
+- [x] `04-dev-proxy-and-embed.md` — Clean local-dev vs production embed story
+- [x] `05-shared-protocol-types.md` — Typed WS message contract
 - [ ] `06-websocket-hardening.md` — Hub reliability and safety
 - [ ] `07-tests-and-ci.md` — Protocol tests + GitHub Actions
 
@@ -35,3 +31,6 @@ Work top to bottom. Skip only if blocked and note why.
 - Configurable `-udp` / `-http`; GridTracker docs in README
 - `dist/index.html` placeholder for `go:embed`
 - Audio nil-guards; Vite high-severity dep upgrades (picomatch still unpatched upstream)
+- Go split into `internal/{hub,server,audio}`; `-audio` opt-in (default off)
+- Vue scaffold purged; Vite `/ws` proxy + two-terminal dev docs
+- Named WS JSON types (`status` / `decode` / …) + `docs/protocol.md`

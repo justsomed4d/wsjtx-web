@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"wsjtx-web/internal/hub"
+	"wsjtx-web/pkg/wsjtx"
 
 	"github.com/gen2brain/malgo"
 	"github.com/gorilla/websocket"
@@ -91,18 +92,18 @@ func (am *Manager) Start(deviceID string) error {
 	return nil
 }
 
-// ListDevices returns capture devices as id/name maps.
-func (am *Manager) ListDevices() ([]map[string]string, error) {
+// ListDevices returns capture devices for the WebSocket audioDevices payload.
+func (am *Manager) ListDevices() ([]wsjtx.AudioDevice, error) {
 	infos, err := am.ctx.Devices(malgo.Capture)
 	if err != nil {
 		return nil, err
 	}
 
-	var devices []map[string]string
+	var devices []wsjtx.AudioDevice
 	for _, info := range infos {
-		devices = append(devices, map[string]string{
-			"id":   info.ID.String(),
-			"name": info.Name(),
+		devices = append(devices, wsjtx.AudioDevice{
+			ID:   info.ID.String(),
+			Name: info.Name(),
 		})
 	}
 	return devices, nil

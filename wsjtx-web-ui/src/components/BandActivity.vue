@@ -1,35 +1,30 @@
 <script setup lang="ts">
 import { useWsjtxStore } from '@/stores/wsjtx'
 import { storeToRefs } from 'pinia'
+import { ClientMsgType, type DecodeMessage } from '@/types/ws'
 
 const store = useWsjtxStore()
 const { messages } = storeToRefs(store)
 
 function formatTime(ms: number) {
   // ms is milliseconds since midnight
-  const date = new Date(ms)
-  // Since it's since midnight, we can just format it as UTC time if we treat it as a duration,
-  // or just do simple math.
   const seconds = Math.floor((ms / 1000) % 60)
   const minutes = Math.floor((ms / (1000 * 60)) % 60)
   const hours = Math.floor((ms / (1000 * 60 * 60)) % 24)
-  
+
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
-function handleReply(msg: any) {
-  // Construct a reply message based on the decode
-  // For now, we just send the decode info back as a "reply" command
-  // The backend will wrap it in a ReplyMessage
-  store.sendMessage('reply', {
+function handleReply(msg: DecodeMessage) {
+  store.sendMessage(ClientMsgType.reply, {
     Time: msg.Time,
     SNR: msg.SNR,
     DeltaTime: msg.DeltaTime,
     DeltaFrequency: msg.DeltaFrequency,
     Mode: msg.Mode,
     Message: msg.Message,
-    LowConfidence: msg.LowConfidence,
-    Modifiers: 0
+    LowConfidence: msg.LowConfidence ?? false,
+    Modifiers: 0,
   })
 }
 </script>

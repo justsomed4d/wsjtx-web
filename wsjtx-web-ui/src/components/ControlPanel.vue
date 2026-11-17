@@ -2,6 +2,7 @@
 import { useWsjtxStore } from '@/stores/wsjtx'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
+import { ClientMsgType } from '@/types/ws'
 
 const store = useWsjtxStore()
 const { status, isConnected, audioDevices } = storeToRefs(store)
@@ -18,7 +19,7 @@ watch(audioDevices, (devices) => {
 })
 
 function haltTx() {
-  store.sendMessage('halt', { AutoTxOnly: false })
+  store.sendMessage(ClientMsgType.halt, { AutoTxOnly: false })
 }
 
 function enableTx() {
@@ -57,7 +58,7 @@ function changeAudioDevice() {
       </div>
       <div class="flex flex-col bg-slate-700 p-2 rounded">
         <label class="text-xs text-slate-400">DX Call</label>
-        <span class="font-bold">{{ status.DxCall }}</span>
+        <span class="font-bold">{{ status.DXCall }}</span>
       </div>
       <div class="flex flex-col bg-slate-700 p-2 rounded">
         <label class="text-xs text-slate-400">Report</label>

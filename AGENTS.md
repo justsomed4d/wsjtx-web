@@ -8,8 +8,9 @@ Remote monitor/control UI for [WSJT-X](https://wsjt.sourceforge.io/). A Go proce
 
 | Layer | Location | Role |
 |-------|----------|------|
-| Backend | `main.go`, `pkg/wsjtx/` | UDP ↔ WebSocket bridge, optional audio capture, embeds `dist/` |
-| Protocol | `pkg/wsjtx/protocol.go` | WSJT-X binary UDP message encode/decode |
+| Backend | `main.go`, `internal/*`, `pkg/wsjtx/` | UDP ↔ WebSocket bridge, optional audio capture, embeds `dist/` |
+| Protocol | `pkg/wsjtx/` | WSJT-X binary UDP + WS JSON type names (`wsjson.go`) |
+| WS contract | `docs/protocol.md`, `wsjtx-web-ui/src/types/ws.ts` | Named text-frame types (`status`, `decode`, `reply`, …) |
 | Frontend | `wsjtx-web-ui/` | Vue 3 + TypeScript + Vite + Pinia + Tailwind |
 | Built UI | `dist/` | Produced by Vite (`outDir: ../dist`); placeholder `dist/index.html` kept for `go:embed` |
 
@@ -88,7 +89,7 @@ Documented in `todo/` (do not invent a conflicting long-term plan):
 - `//go:embed dist` fails if `dist/` is missing — keep placeholder `dist/index.html`.  
 - GridTracker binds `:2237` — use `-udp` and document WSJT-X port changes.  
 - Audio is opt-in (`-audio`); without it `audio.Manager` is nil — guard before use.  
-- Message types on the wire are stringified ints (`"1"` status, `"2"` decode) plus named commands (`reply`, `halt`, `getAudioDevices`, …).
+- WS text frames use named types (`status`, `decode`, `reply`, `halt`, …) — see `docs/protocol.md`. Do not reintroduce `"1"` / `"2"`.
 
 ## Cursor rules
 
