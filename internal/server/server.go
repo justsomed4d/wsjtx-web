@@ -87,10 +87,10 @@ func (cfg Config) handleWS(w http.ResponseWriter, r *http.Request) {
 		}
 
 		switch cmd.Type {
-		case "getAudioDevices":
+		case wsjtx.CmdGetAudioDevices:
 			cfg.handleGetAudioDevices()
 			continue
-		case "setAudioDevice":
+		case wsjtx.CmdSetAudioDevice:
 			cfg.handleSetAudioDevice(cmd.Data)
 			continue
 		}
@@ -122,34 +122,23 @@ func (cfg Config) handleWS(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg Config) handleGetAudioDevices() {
+	devices := []wsjtx.AudioDevice{}
 	if cfg.Audio == nil {
-		log.Println("Audio disabled; ignoring getAudioDevices")
-		resp, _ := json.Marshal(struct {
-			Type string      `json:"type"`
-			Data interface{} `json:"data"`
-		}{
-			Type: "audioDevices",
-			Data: []map[string]string{},
-		})
-		cfg.Hub.Broadcast(hub.BroadcastMessage{
-			Type:    websocket.TextMessage,
-			Payload: resp,
-		})
-		return
+		log.Println("Audio disabled; returning empty audioDevices")
+	} else {
+		listed, err := cfg.Audio.ListDevices()
+		if err != nil {
+			log.Printf("Error listing devices: %v", err)
+			return
+		}
+		devices = listed
 	}
 
-	devices, err := cfg.Audio.ListDevices()
+	resp, err := wsjtx.MarshalEnvelope(wsjtx.TypeAudioDevices, devices)
 	if err != nil {
-		log.Printf("Error listing devices: %v", err)
+		log.Printf("Error marshaling audioDevices: %v", err)
 		return
 	}
-	resp, _ := json.Marshal(struct {
-		Type string      `json:"type"`
-		Data interface{} `json:"data"`
-	}{
-		Type: "audioDevices",
-		Data: devices,
-	})
 	cfg.Hub.Broadcast(hub.BroadcastMessage{
 		Type:    websocket.TextMessage,
 		Payload: resp,
@@ -161,31 +150,20 @@ func (cfg Config) handleSetAudioDevice(data json.RawMessage) {
 		log.Println("Audio disabled; ignoring setAudioDevice")
 		return
 	}
-	var d struct {
-		Id string `json:"id"`
-	}
+	var d wsjtx.SetAudioDeviceCommand
 	if err := json.Unmarshal(data, &d); err != nil {
 		log.Printf("Error parsing setAudioDevice data: %v", err)
 		return
 	}
-	if err := cfg.Audio.Start(d.Id); err != nil {
+	if err := cfg.Audio.Start(d.ID); err != nil {
 		log.Printf("Error setting audio device: %v", err)
 	}
 }
 
 func buildUDPMessage(cmdType string, data json.RawMessage) (wsjtx.Message, bool) {
 	switch cmdType {
-	case "reply":
-		var d struct {
-			Time      uint32  `json:"Time"`
-			SNR       int32   `json:"SNR"`
-			DeltaTime float64 `json:"DeltaTime"`
-			DeltaFreq uint32  `json:"DeltaFrequency"`
-			Mode      string  `json:"Mode"`
-			Message   string  `json:"Message"`
-			LowConf   bool    `json:"LowConfidence"`
-			Modifiers uint8   `json:"Modifiers"`
-		}
+	case wsjtx.CmdReply:
+		var d wsjtx.ReplyCommand
 		if err := json.Unmarshal(data, &d); err != nil {
 			log.Printf("Error parsing reply data: %v", err)
 			return nil, false
@@ -195,16 +173,14 @@ func buildUDPMessage(cmdType string, data json.RawMessage) (wsjtx.Message, bool)
 			Time:        d.Time,
 			SNR:         d.SNR,
 			DeltaTime:   d.DeltaTime,
-			DeltaFreq:   d.DeltaFreq,
+			DeltaFreq:   d.DeltaFrequency,
 			Mode:        d.Mode,
 			Message:     d.Message,
-			LowConf:     d.LowConf,
+			LowConf:     d.LowConfidence,
 			Modifiers:   d.Modifiers,
 		}, true
-	case "halt":
-		var d struct {
-			AutoTxOnly bool `json:"AutoTxOnly"`
-		}
+	case wsjtx.CmdHalt:
+		var d wsjtx.HaltCommand
 		if err := json.Unmarshal(data, &d); err != nil {
 			log.Printf("Error parsing halt data: %v", err)
 			return nil, false

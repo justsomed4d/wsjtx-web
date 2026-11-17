@@ -40,56 +40,56 @@ type Message interface {
 }
 
 type BaseMessage struct {
-	Id string
+	Id string `json:"Id"`
 }
 
 type HeartbeatMessage struct {
 	BaseMessage
-	MaxSchema uint32
-	Version   string
-	Revision  string
+	MaxSchema uint32 `json:"MaxSchema"`
+	Version   string `json:"Version"`
+	Revision  string `json:"Revision"`
 }
 
 func (m HeartbeatMessage) Type() MessageType { return MsgHeartbeat }
 
 type StatusMessage struct {
 	BaseMessage
-	DialFrequency      uint64
-	Mode               string
-	DXCall             string
-	Report             string
-	TxMode             string
-	TxEnabled          bool
-	Transmitting       bool
-	Decoding           bool
-	RxDF               uint32
-	TxDF               uint32
-	DECall             string
-	DEGrid             string
-	DXGrid             string
-	TxWatchdog         bool
-	SubMode            string
-	FastMode           bool
-	SpecialOpMode      uint8
-	FrequencyTolerance uint32
-	TRPeriod           uint32
-	ConfigName         string
-	TxMessage          string
+	DialFrequency      uint64 `json:"DialFrequency"`
+	Mode               string `json:"Mode"`
+	DXCall             string `json:"DXCall"`
+	Report             string `json:"Report"`
+	TxMode             string `json:"TxMode"`
+	TxEnabled          bool   `json:"TxEnabled"`
+	Transmitting       bool   `json:"Transmitting"`
+	Decoding           bool   `json:"Decoding"`
+	RxDF               uint32 `json:"RxDF"`
+	TxDF               uint32 `json:"TxDF"`
+	DECall             string `json:"DECall"`
+	DEGrid             string `json:"DEGrid"`
+	DXGrid             string `json:"DXGrid"`
+	TxWatchdog         bool   `json:"TxWatchdog"`
+	SubMode            string `json:"SubMode"`
+	FastMode           bool   `json:"FastMode"`
+	SpecialOpMode      uint8  `json:"SpecialOpMode"`
+	FrequencyTolerance uint32 `json:"FrequencyTolerance"`
+	TRPeriod           uint32 `json:"TRPeriod"`
+	ConfigName         string `json:"ConfigName"`
+	TxMessage          string `json:"TxMessage"`
 }
 
 func (m StatusMessage) Type() MessageType { return MsgStatus }
 
 type DecodeMessage struct {
 	BaseMessage
-	New            bool
-	Time           uint32 // Milliseconds since midnight
-	SNR            int32
-	DeltaTime      float64
-	DeltaFrequency uint32
-	Mode           string
-	Message        string
-	LowConfidence  bool
-	OffAir         bool
+	New            bool    `json:"New"`
+	Time           uint32  `json:"Time"` // Milliseconds since midnight
+	SNR            int32   `json:"SNR"`
+	DeltaTime      float64 `json:"DeltaTime"`
+	DeltaFrequency uint32  `json:"DeltaFrequency"`
+	Mode           string  `json:"Mode"`
+	Message        string  `json:"Message"`
+	LowConfidence  bool    `json:"LowConfidence"`
+	OffAir         bool    `json:"OffAir"`
 }
 
 func (m DecodeMessage) Type() MessageType { return MsgDecode }

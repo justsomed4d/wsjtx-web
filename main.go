@@ -2,9 +2,7 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"io/fs"
 	"log"
 	"net"
@@ -89,15 +87,7 @@ func main() {
 			continue
 		}
 
-		wrapper := struct {
-			Type string      `json:"type"`
-			Data interface{} `json:"data"`
-		}{
-			Type: fmt.Sprintf("%d", msg.Type()),
-			Data: msg,
-		}
-
-		wrappedJSON, err := json.Marshal(wrapper)
+		wrappedJSON, err := wsjtx.MarshalEnvelope(wsjtx.TypeName(msg.Type()), msg)
 		if err == nil {
 			h.Broadcast(hub.BroadcastMessage{
 				Type:    websocket.TextMessage,

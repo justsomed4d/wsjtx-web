@@ -1,95 +1,119 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import {
+  ClientMsgType,
+  ServerMsgType,
+  type AudioDevice,
+  type ClientEnvelope,
+  type ClientMsgTypeName,
+  type DecodeMessage,
+  type StatusMessage,
+} from '@/types/ws'
 
 export const useWsjtxStore = defineStore('wsjtx', () => {
-    const isConnected = ref(false)
-    const messages = ref<any[]>([])
-    const status = ref<any>(null)
+  const isConnected = ref(false)
+  const messages = ref<DecodeMessage[]>([])
+  const status = ref<StatusMessage | null>(null)
 
-    let ws: WebSocket | null = null
+  let ws: WebSocket | null = null
 
-    const audioQueue = ref<Float32Array[]>([])
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+  const audioQueue = ref<Float32Array[]>([])
+  const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
 
-    const audioDevices = ref<{ id: string, name: string }[]>([])
+  const audioDevices = ref<AudioDevice[]>([])
 
-    function connect() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        ws = new WebSocket(`${protocol}//${window.location.host}/ws`)
-        ws.binaryType = 'arraybuffer'
+  function connect() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    ws = new WebSocket(`${protocol}//${window.location.host}/ws`)
+    ws.binaryType = 'arraybuffer'
 
-        ws.onopen = () => {
-            isConnected.value = true
-            console.log('WebSocket connected')
-            // Fetch devices on connect
-            fetchAudioDevices()
-        }
-
-        ws.onmessage = (event) => {
-            if (event.data instanceof ArrayBuffer) {
-                // Audio data (Int16 PCM)
-                const int16Data = new Int16Array(event.data)
-                const float32Data = new Float32Array(int16Data.length)
-                for (let i = 0; i < int16Data.length; i++) {
-                    const sample = int16Data[i]
-                    if (sample !== undefined) {
-                        float32Data[i] = sample / 32768.0
-                    }
-                }
-                audioQueue.value.push(float32Data)
-                if (audioQueue.value.length > 50) {
-                    audioQueue.value.shift() // Keep queue size manageable
-                }
-            } else {
-                try {
-                    const data = JSON.parse(event.data)
-                    handleMessage(data)
-                } catch (e) {
-                    console.error('Error parsing message:', e)
-                }
-            }
-        }
-
-        ws.onclose = () => {
-            isConnected.value = false
-            console.log('WebSocket disconnected')
-            setTimeout(connect, 1000) // Reconnect
-        }
-
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error)
-        }
+    ws.onopen = () => {
+      isConnected.value = true
+      console.log('WebSocket connected')
+      fetchAudioDevices()
     }
 
-    function handleMessage(msg: any) {
-        // msg.type is string "2" for Decode, "1" for Status, etc.
-        if (msg.type === "2") { // Decode
-            messages.value.unshift(msg.data)
-            if (messages.value.length > 100) {
-                messages.value.pop()
-            }
-        } else if (msg.type === "1") { // Status
-            status.value = msg.data
-        } else if (msg.type === "audioDevices") {
-            audioDevices.value = msg.data
+    ws.onmessage = (event) => {
+      if (event.data instanceof ArrayBuffer) {
+        const int16Data = new Int16Array(event.data)
+        const float32Data = new Float32Array(int16Data.length)
+        for (let i = 0; i < int16Data.length; i++) {
+          const sample = int16Data[i]
+          if (sample !== undefined) {
+            float32Data[i] = sample / 32768.0
+          }
         }
-    }
-
-    function sendMessage(type: string, data: any) {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type, data }))
-        } else {
-            console.error('WebSocket not connected')
+        audioQueue.value.push(float32Data)
+        if (audioQueue.value.length > 50) {
+          audioQueue.value.shift()
         }
+      } else {
+        try {
+          const data = JSON.parse(event.data as string) as { type: string; data: unknown }
+          handleMessage(data)
+        } catch (e) {
+          console.error('Error parsing message:', e)
+        }
+      }
     }
 
-    function fetchAudioDevices() {
-        sendMessage('getAudioDevices', {})
+    ws.onclose = () => {
+      isConnected.value = false
+      console.log('WebSocket disconnected')
+      setTimeout(connect, 1000)
     }
 
-    function setAudioDevice(id: string) {
-        sendMessage('setAudioDevice', { id })
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
     }
+  }
 
-    return { isConnected, messages, status, connect, sendMessage, audioQueue, audioContext, audioDevices, fetchAudioDevices, setAudioDevice }
+  function handleMessage(msg: { type: string; data: unknown }) {
+    switch (msg.type) {
+      case ServerMsgType.decode:
+        messages.value.unshift(msg.data as DecodeMessage)
+        if (messages.value.length > 100) {
+          messages.value.pop()
+        }
+        break
+      case ServerMsgType.status:
+        status.value = msg.data as StatusMessage
+        break
+      case ServerMsgType.audioDevices:
+        audioDevices.value = msg.data as AudioDevice[]
+        break
+      default:
+        break
+    }
+  }
+
+  function sendMessage(type: ClientMsgTypeName, data: ClientEnvelope['data']) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const envelope: ClientEnvelope = { type, data } as ClientEnvelope
+      ws.send(JSON.stringify(envelope))
+    } else {
+      console.error('WebSocket not connected')
+    }
+  }
+
+  function fetchAudioDevices() {
+    sendMessage(ClientMsgType.getAudioDevices, {})
+  }
+
+  function setAudioDevice(id: string) {
+    sendMessage(ClientMsgType.setAudioDevice, { id })
+  }
+
+  return {
+    isConnected,
+    messages,
+    status,
+    connect,
+    sendMessage,
+    audioQueue,
+    audioContext,
+    audioDevices,
+    fetchAudioDevices,
+    setAudioDevice,
+  }
 })
