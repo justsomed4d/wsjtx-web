@@ -82,52 +82,42 @@ go run main.go
 
 wsjtx-web will listen on `:2237` and serve the UI on `http://localhost:8080`.
 
-### Running Locally
+### Running Locally (recommended)
 
-1. **Start the Backend**:
+Use two terminals. Vite on `:5173` proxies `/ws` to the Go backend on `:8080`, so the UI and WebSocket share one origin during development.
 
-    ```bash
-    # First-time / fresh clone: create a placeholder so go:embed succeeds
-    mkdir -p dist && echo '<!DOCTYPE html><title>wsjtx-web</title>' > dist/index.html
+**Terminal 1 — Go backend** (placeholder `dist/index.html` is already tracked for `go:embed`):
 
-    go run main.go
-    ```
+```bash
+go run main.go
+# If GridTracker owns :2237:
+# go run main.go -udp :2238 -http :8080
+```
 
-    Defaults: WSJT-X UDP on `:2237`, HTTP on `http://localhost:8080`.
+Defaults: WSJT-X UDP on `:2237`, HTTP on `http://localhost:8080`.
 
-    Flags:
+**Terminal 2 — Vite frontend**:
 
-    ```bash
-    go run main.go -udp :2238 -http :8080
-    ```
+```bash
+cd wsjtx-web-ui
+npm install
+npm run dev
+# or from repo root: make dev
+```
 
-2. **Start the Frontend** (for development):
-
-    ```bash
-    cd wsjtx-web-ui
-    npm install
-    npm run dev
-    ```
-
-    Access the UI at `http://localhost:5173`.
+Open the UI at `http://localhost:5173`. WebSocket traffic to `/ws` is proxied to Go — no host hard-coding needed.
 
 ### Building for Production
 
-1. **Build Frontend**:
+One binary: Vite writes the UI into `dist/`, then Go embeds it.
 
-    ```bash
-    cd wsjtx-web-ui
-    npm run build
-    ```
+```bash
+make all
+# or:
+# cd wsjtx-web-ui && npm run build && cd .. && go build
+```
 
-2. **Build Backend**:
-
-    ```bash
-    cd ..
-    go build
-    ```
-
-    This will create a `wsjtx-web` binary that serves the built frontend from the `dist` directory.
+Run `./wsjtx-web` (or `make run` after `make all`). The binary serves the built UI from the embedded `dist/`.
 
 ## License
 

@@ -17,20 +17,29 @@ Fork of `dbehnke/wsjtx-web`. Push to `origin` (`justsomed4d/wsjtx-web`). Upstrea
 
 ## How to run (agent checklist)
 
+**Dev (two terminals)** — Vite proxies `/ws` → Go `:8080`:
+
 ```bash
-# Backend (needs dist/ for embed — placeholder already in repo)
+# Terminal 1 — backend (placeholder dist/index.html already tracked for go:embed)
 go run main.go
-
 # If UDP :2237 is taken (often GridTracker):
-go run main.go -udp :2238 -http :8080
+# go run main.go -udp :2238 -http :8080
 
-# Frontend dev server
+# Terminal 2 — frontend
 cd wsjtx-web-ui && npm install && npm run dev
+# or from repo root: make dev
 ```
 
-- Backend HTTP: `http://localhost:8080`
-- Vite UI: `http://localhost:5173`
+- Vite UI: `http://localhost:5173` (use this in local dev)
+- Backend HTTP: `http://localhost:8080` (placeholder or prod assets)
 - WSJT-X must send UDP to whatever `-udp` address is in use; enable **Accept UDP requests** for reply/halt.
+
+**Prod** — one binary with embedded UI:
+
+```bash
+cd wsjtx-web-ui && npm run build && cd .. && go build
+# or: make all
+```
 
 See README **Using with GridTracker** for coexistence.
 
@@ -74,7 +83,7 @@ Documented in `todo/` (do not invent a conflicting long-term plan):
 
 - `//go:embed dist` fails if `dist/` is missing — keep placeholder `dist/index.html`.  
 - GridTracker binds `:2237` — use `-udp` and document WSJT-X port changes.  
-- `audioManager` can be nil if malgo init fails — guard before use.  
+- Audio is opt-in (`-audio`); without it `audio.Manager` is nil — guard before use.  
 - Message types on the wire are stringified ints (`"1"` status, `"2"` decode) plus named commands (`reply`, `halt`, `getAudioDevices`, …).
 
 ## Cursor rules

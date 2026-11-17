@@ -1,6 +1,6 @@
 # 03 — Purge Vue scaffold leftovers
 
-Status: `todo`  
+Status: `done`  
 Priority: P1
 
 ## Goal
@@ -38,9 +38,9 @@ Scaffold files confuse agents and humans (`HelloWorld`, welcome icons, counter s
 
 ## Acceptance
 
-- [ ] No scaffold components remain referenced
-- [ ] Build and unit tests pass
-- [ ] App still loads HomeView with BandActivity / ControlPanel / WaterfallDisplay
+- [x] No scaffold components remain referenced
+- [x] Build and unit tests pass
+- [x] App still loads HomeView with BandActivity / ControlPanel / WaterfallDisplay
 
 ## Key files
 
